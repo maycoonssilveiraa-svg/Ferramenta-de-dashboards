@@ -1649,15 +1649,13 @@ function validateStep(step) {
       }
       break;
     case 4:
-      if (!data.layout) {
-        alert('Selecione um estilo de layout.');
-        return false;
-      }
+      // Layout não é mais obrigatório para poder avançar
       break;
     case 5:
+      // Se não tiver paleta selecionada, usa a padrão
       if (!data.palette) {
-        alert('Selecione uma paleta de cores.');
-        return false;
+        data.palette = 'corporate';
+        data.colors = PALETTES.corporate;
       }
       break;
     case 6:
@@ -1672,23 +1670,37 @@ function validateStep(step) {
 // STEP 1: CLIENTE
 // ═══════════════════════════════════════
 function selectOption(card, field) {
-  const isLayout = field === 'layout';
-  if (isLayout) {
+  console.log('selectOption chamado com:', field, card.dataset.value);
+  
+  // Para layout, permitir toggle (marcar/desmarcar)
+  if (field === 'layout') {
     toggleOption(card, field);
-  } else {
-    document.querySelectorAll(`#${field === 'segment' ? 'segmentOptions' : field === 'dashType' ? 'dashTypeOptions' : 'audienceOptions'} .option-card`).forEach(c => c.classList.remove('selected'));
-    card.classList.add('selected');
-    
-    if (field === 'segment') {
-      data.segment = card.dataset.value;
-      document.getElementById('segmentOtherWrap').style.display = data.segment === 'outro' ? 'block' : 'none';
-      // Atualizar sugestões de KPIs quando mudar segmento
-      updateSuggestedMetrics();
-    } else if (field === 'dashType') {
-      data.dashType = card.dataset.value;
-    } else if (field === 'audience') {
-      data.audience = card.dataset.value;
-    }
+    console.log('Layout toggle, data.layout:', data.layout);
+    return;
+  }
+  
+  // Para outros campos, seleção única
+  const containerId = field === 'segment' ? 'segmentOptions' : 
+                     field === 'dashType' ? 'dashTypeOptions' : 
+                     field === 'audience' ? 'audienceOptions' : null;
+  
+  if (containerId) {
+    document.querySelectorAll(`#${containerId} .option-card`).forEach(c => c.classList.remove('selected'));
+  }
+  card.classList.add('selected');
+  
+  if (field === 'segment') {
+    data.segment = card.dataset.value;
+    document.getElementById('segmentOtherWrap').style.display = data.segment === 'outro' ? 'block' : 'none';
+    // Atualizar sugestões de KPIs quando mudar segmento
+    updateSuggestedMetrics();
+    console.log('Segmento selecionado:', data.segment);
+  } else if (field === 'dashType') {
+    data.dashType = card.dataset.value;
+    console.log('DashType selecionado:', data.dashType);
+  } else if (field === 'audience') {
+    data.audience = card.dataset.value;
+    console.log('Audience selecionado:', data.audience);
   }
 }
 
@@ -1777,11 +1789,14 @@ function toggleWidget(card, field) {
 // STEP 5: VISUAL
 // ═══════════════════════════════════════
 function selectPalette(card) {
+  console.log('selectPalette chamado com:', card.dataset.palette);
   document.querySelectorAll('.palette-option').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
   
   data.palette = card.dataset.palette;
   data.colors = PALETTES[data.palette];
+  
+  console.log('Paleta selecionada:', data.palette, data.colors);
   
   // Atualizar color pickers com cores da paleta
   document.getElementById('colorPrimary').value = data.colors.primary;
