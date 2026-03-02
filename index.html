@@ -1080,12 +1080,18 @@
     <!-- Step 3: KPIs / Métricas -->
     <div class="step-panel" id="step-3">
       <div class="step-header">
-        <div class="step-tag">Etapa 3 de 7</div>
+        <div class="step-tag">Etapa 3 de 8</div>
         <div class="step-title">Métricas & KPIs</div>
         <div class="step-subtitle">Quais indicadores precisam aparecer no dashboard?</div>
       </div>
       <div class="form-group">
-        <label>Adicione as métricas (pressione Enter para adicionar)</label>
+        <label>Sugestões automáticas baseadas no seu segmento</label>
+        <div id="suggestedMetrics" class="options-grid" style="margin-bottom: 1.5rem;">
+          <!-- Will be populated by JS -->
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Adicione métricas personalizadas (pressione Enter para adicionar)</label>
         <div class="tags-container" onclick="document.getElementById('metricsInput').focus()">
           <div id="metricsTags"></div>
           <input class="tag-input" id="metricsInput" placeholder="ex: Receita Total, Ticket Médio..." onkeydown="addTag(event,'metrics')">
@@ -1156,6 +1162,30 @@
             <div class="widget-preview">📋</div>
             <div style="font-size:0.78rem;font-weight:600">Tabela</div>
           </div>
+          <div class="widget-card" data-value="pie" onclick="toggleWidget(this,'charts')">
+            <div class="widget-preview">🥧</div>
+            <div style="font-size:0.78rem;font-weight:600">Pizza</div>
+          </div>
+          <div class="widget-card" data-value="gauge" onclick="toggleWidget(this,'charts')">
+            <div class="widget-preview">🎯</div>
+            <div style="font-size:0.78rem;font-weight:600">Gauge</div>
+          </div>
+          <div class="widget-card" data-value="scatter" onclick="toggleWidget(this,'charts')">
+            <div class="widget-preview">⚡</div>
+            <div style="font-size:0.78rem;font-weight:600">Dispersão</div>
+          </div>
+          <div class="widget-card" data-value="heatmap" onclick="toggleWidget(this,'charts')">
+            <div class="widget-preview">🔥</div>
+            <div style="font-size:0.78rem;font-weight:600">Mapa Calor</div>
+          </div>
+          <div class="widget-card" data-value="funnel" onclick="toggleWidget(this,'charts')">
+            <div class="widget-preview">🔺</div>
+            <div style="font-size:0.78rem;font-weight:600">Funil</div>
+          </div>
+          <div class="widget-card" data-value="radar" onclick="toggleWidget(this,'charts')">
+            <div class="widget-preview">🕸️</div>
+            <div style="font-size:0.78rem;font-weight:600">Radar</div>
+          </div>
         </div>
       </div>
       <div class="nav-buttons">
@@ -1167,7 +1197,7 @@
     <!-- Step 5: Identidade Visual -->
     <div class="step-panel" id="step-5">
       <div class="step-header">
-        <div class="step-tag">Etapa 5 de 7</div>
+        <div class="step-tag">Etapa 5 de 8</div>
         <div class="step-title">Identidade Visual</div>
         <div class="step-subtitle">Cores, logo e fontes que representam o cliente.</div>
       </div>
@@ -1200,6 +1230,57 @@
             <div class="palette-name">Mono</div>
           </div>
         </div>
+      </div>
+
+      <div class="form-group">
+        <label>Color Picker Personalizado</label>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div>
+            <label style="font-size: 0.8rem;">Cor Primária</label>
+            <input type="color" id="colorPrimary" value="#2563eb" onchange="updateCustomColors()" style="width: 100%; height: 40px; border-radius: 8px; cursor: pointer;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem;">Cor Secundária</label>
+            <input type="color" id="colorSecondary" value="#38bdf8" onchange="updateCustomColors()" style="width: 100%; height: 40px; border-radius: 8px; cursor: pointer;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem;">Cor de Destaque</label>
+            <input type="color" id="colorAccent" value="#f59e0b" onchange="updateCustomColors()" style="width: 100%; height: 40px; border-radius: 8px; cursor: pointer;">
+          </div>
+          <div>
+            <label style="font-size: 0.8rem;">Cor de Fundo</label>
+            <input type="color" id="colorBg" value="#f8fafc" onchange="updateCustomColors()" style="width: 100%; height: 40px; border-radius: 8px; cursor: pointer;">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Logo da Empresa</label>
+        <div class="upload-zone" onclick="document.getElementById('logoFile').click()">
+          <div class="source-icon">🖼️</div>
+          <div>Clique para fazer upload do logo</div>
+          <input type="file" id="logoFile" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
+        </div>
+        <div id="logoPreview" style="display:none; margin-top: 1rem;">
+          <img id="logoPreviewImg" style="max-height: 80px; border-radius: 8px;">
+          <button class="btn btn-secondary" style="margin-left: 1rem;" onclick="removeLogo()">Remover</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tipografia</label>
+        <select id="fontFamily" onchange="updateFontFamily()" style="width: 100%;">
+          <option value="'DM Sans', sans-serif">DM Sans (Padrão)</option>
+          <option value="'Syne', sans-serif">Syne (Moderno)</option>
+          <option value="'Inter', sans-serif">Inter (Limpo)</option>
+          <option value="'Roboto', sans-serif">Roboto (Google)</option>
+          <option value="'Poppins', sans-serif">Poppins (Arredondado)</option>
+          <option value="'Montserrat', sans-serif">Montserrat (Profissional)</option>
+          <option value="'Open Sans', sans-serif">Open Sans (Legível)</option>
+          <option value="'Lato', sans-serif">Lato (Clássico)</option>
+          <option value="'Raleway', sans-serif">Raleway (Elegante)</option>
+          <option value="'Oswald', sans-serif">Oswald (Condensado)</option>
+        </select>
       </div>
 
       <div class="nav-buttons">
@@ -1532,25 +1613,76 @@ function validateStep(step) {
 }
 
 // ═══════════════════════════════════════
-// STEP 1: CLIENTE
+// STEP 4: LAYOUT
 // ═══════════════════════════════════════
-function selectOption(card, field) {
-  document.querySelectorAll(`#${field === 'segment' ? 'segmentOptions' : field === 'dashType' ? 'dashTypeOptions' : 'audienceOptions'} .option-card`).forEach(c => c.classList.remove('selected'));
-  card.classList.add('selected');
+function toggleOption(card, field) {
+  card.classList.toggle('selected');
   
-  if (field === 'segment') {
-    data.segment = card.dataset.value;
-    document.getElementById('segmentOtherWrap').style.display = data.segment === 'outro' ? 'block' : 'none';
-  } else if (field === 'dashType') {
-    data.dashType = card.dataset.value;
-  } else if (field === 'audience') {
-    data.audience = card.dataset.value;
+  if (field === 'layout') {
+    data.layout = card.classList.contains('selected') ? card.dataset.value : '';
+  }
+}
+
+function selectOption(card, field) {
+  const isLayout = field === 'layout';
+  if (isLayout) {
+    toggleOption(card, field);
+  } else {
+    document.querySelectorAll(`#${field === 'segment' ? 'segmentOptions' : field === 'dashType' ? 'dashTypeOptions' : 'audienceOptions'} .option-card`).forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    
+    if (field === 'segment') {
+      data.segment = card.dataset.value;
+      document.getElementById('segmentOtherWrap').style.display = data.segment === 'outro' ? 'block' : 'none';
+      // Atualizar sugestões de KPIs quando mudar segmento
+      updateSuggestedMetrics();
+    } else if (field === 'dashType') {
+      data.dashType = card.dataset.value;
+    } else if (field === 'audience') {
+      data.audience = card.dataset.value;
+    }
   }
 }
 
 // ═══════════════════════════════════════
 // STEP 3: METRICS
 // ═══════════════════════════════════════
+const SEGMENT_METRICS = {
+  financeiro: ['Receita Total', 'Lucro Líquido', 'Margem de Lucro', 'ROI', 'Fluxo de Caixa', 'Dívida Líquida'],
+  saude: ['Pacientes Atendidos', 'Taxa de Ocupação', 'Tempo Médio Espera', 'Satisfação Pacientes', 'Custo por Procedimento'],
+  varejo: ['Vendas Totais', 'Ticket Médio', 'Taxa Conversão', 'Estoque Atual', 'Clientes Novos', 'Retenção Clientes'],
+  logistica: ['Entregas Realizadas', 'Tempo Médio Entrega', 'Custo Logístico', 'Taxa Entrega Prazo', 'Nível Serviço'],
+  rh: ['Funcionários Ativos', 'Taxa Rotatividade', 'Custo por Funcionário', 'Satisfação Equipe', 'Treinamentos Realizados'],
+  marketing: ['Leads Gerados', 'Taxa Conversão', 'Custo por Lead', 'ROI Marketing', 'Engajamento Social'],
+  tecnologia: ['Usuários Ativos', 'Uptime Sistema', 'Bugs Resolvidos', 'Velocidade Carregamento', 'Adoção Features'],
+  educacao: ['Alunos Matriculados', 'Taxa Conclusão', 'Satisfação Alunos', 'Custo por Aluno', 'Professores Ativos']
+};
+
+function updateSuggestedMetrics() {
+  const container = document.getElementById('suggestedMetrics');
+  const segment = data.segment;
+  
+  if (!segment || !SEGMENT_METRICS[segment]) {
+    container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 2rem;">Selecione um segmento na etapa anterior para ver sugestões</div>';
+    return;
+  }
+  
+  const metrics = SEGMENT_METRICS[segment];
+  container.innerHTML = metrics.map(metric => `
+    <div class="option-card" onclick="addSuggestedMetric('${metric}')" style="cursor: pointer;">
+      <div class="option-icon">📊</div>
+      <div class="option-label">${metric}</div>
+    </div>
+  `).join('');
+}
+
+function addSuggestedMetric(metric) {
+  if (!data.metrics.includes(metric)) {
+    data.metrics.push(metric);
+    renderMetricsTags();
+  }
+}
+
 function addTag(event, field) {
   if (event.key === 'Enter') {
     event.preventDefault();
@@ -1605,6 +1737,48 @@ function selectPalette(card) {
   
   data.palette = card.dataset.palette;
   data.colors = PALETTES[data.palette];
+  
+  // Atualizar color pickers com cores da paleta
+  document.getElementById('colorPrimary').value = data.colors.primary;
+  document.getElementById('colorSecondary').value = data.colors.secondary;
+  document.getElementById('colorAccent').value = data.colors.accent;
+  document.getElementById('colorBg').value = data.colors.bg;
+}
+
+function updateCustomColors() {
+  data.palette = 'custom';
+  data.colors = {
+    primary: document.getElementById('colorPrimary').value,
+    secondary: document.getElementById('colorSecondary').value,
+    accent: document.getElementById('colorAccent').value,
+    bg: document.getElementById('colorBg').value
+  };
+  
+  // Desmarcar paletas pré-definidas
+  document.querySelectorAll('.palette-option').forEach(c => c.classList.remove('selected'));
+}
+
+function handleLogoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    data.logoDataUrl = e.target.result;
+    document.getElementById('logoPreviewImg').src = e.target.result;
+    document.getElementById('logoPreview').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeLogo() {
+  data.logoDataUrl = null;
+  document.getElementById('logoPreview').style.display = 'none';
+  document.getElementById('logoFile').value = '';
+}
+
+function updateFontFamily() {
+  data.fontFamily = document.getElementById('fontFamily').value;
 }
 
 // ═══════════════════════════════════════
@@ -1939,6 +2113,10 @@ function showPQStatus(elementId, message, type) {
 function generateDashboard() {
   const preview = document.getElementById('dashboardPreview');
   const colors = data.colors || PALETTES.corporate;
+  const fontFamily = data.fontFamily || "'DM Sans', sans-serif";
+  
+  // Aplicar font family ao preview
+  preview.style.fontFamily = fontFamily;
   
   // Generate KPIs
   const kpiData = data.metrics.map((metric, i) => {
@@ -1954,7 +2132,10 @@ function generateDashboard() {
   
   const dashboardHTML = `
     <div class="dash-topbar">
-      <div class="dash-title">${data.clientName || 'Dashboard'} - ${data.dashType || 'Analítico'}</div>
+      <div class="dash-title" style="font-family: ${fontFamily};">
+        ${data.logoDataUrl ? `<img src="${data.logoDataUrl}" style="height: 24px; margin-right: 1rem; vertical-align: middle;">` : ''}
+        ${data.clientName || 'Dashboard'} - ${data.dashType || 'Analítico'}
+      </div>
       <div class="dash-user">👤</div>
     </div>
     
@@ -1969,10 +2150,10 @@ function generateDashboard() {
       <div class="dash-content">
         <div class="kpi-grid">
           ${kpiData.map((kpi, i) => `
-            <div class="dash-block kpi-card" data-block="kpi-${i}" style="background: ${colors.bg}; border-color: ${colors.primary};">
-              <div class="kpi-label" style="color: ${colors.secondary};">${kpi.name}</div>
-              <div class="kpi-value" style="color: ${colors.primary};">${kpi.value}</div>
-              <div class="kpi-change ${kpi.positive ? 'positive' : 'negative'}" style="color: ${kpi.positive ? '#4ade80' : '#ef4444'};">${kpi.change}</div>
+            <div class="dash-block kpi-card" data-block="kpi-${i}" style="background: ${colors.bg}; border-color: ${colors.primary}; font-family: ${fontFamily};">
+              <div class="kpi-label" style="color: ${colors.secondary}; font-family: ${fontFamily};">${kpi.name}</div>
+              <div class="kpi-value" style="color: ${colors.primary}; font-family: ${fontFamily};">${kpi.value}</div>
+              <div class="kpi-change ${kpi.positive ? 'positive' : 'negative'}" style="color: ${kpi.positive ? '#4ade80' : '#ef4444'}; font-family: ${fontFamily};">${kpi.change}</div>
               <div class="block-handle">⠿</div>
             </div>
           `).join('')}
@@ -1980,8 +2161,8 @@ function generateDashboard() {
         
         ${data.charts.includes('bar') ? `
           <div class="charts-row">
-            <div class="dash-block chart-card" data-block="chart-bar" style="background: ${colors.bg}; border-color: ${colors.primary};">
-              <div class="chart-title" style="color: ${colors.primary};">Análise de Barras</div>
+            <div class="dash-block chart-card" data-block="chart-bar" style="background: ${colors.bg}; border-color: ${colors.primary}; font-family: ${fontFamily};">
+              <div class="chart-title" style="color: ${colors.primary}; font-family: ${fontFamily};">Análise de Barras</div>
               <div class="chart-bar-wrap">
                 ${generateBarChart(colors)}
               </div>
@@ -1990,9 +2171,33 @@ function generateDashboard() {
           </div>
         ` : ''}
         
+        ${data.charts.includes('line') ? `
+          <div class="charts-row">
+            <div class="dash-block chart-card" data-block="chart-line" style="background: ${colors.bg}; border-color: ${colors.primary}; font-family: ${fontFamily};">
+              <div class="chart-title" style="color: ${colors.primary}; font-family: ${fontFamily};">Tendência Linear</div>
+              <div class="chart-bar-wrap">
+                ${generateLineChart(colors)}
+              </div>
+              <div class="block-handle">⠿</div>
+            </div>
+          </div>
+        ` : ''}
+        
+        ${data.charts.includes('pie') || data.charts.includes('donut') ? `
+          <div class="charts-row">
+            <div class="dash-block chart-card" data-block="chart-pie" style="background: ${colors.bg}; border-color: ${colors.primary}; font-family: ${fontFamily};">
+              <div class="chart-title" style="color: ${colors.primary}; font-family: ${fontFamily};">Distribuição</div>
+              <div style="display: flex; justify-content: center; align-items: center; height: 120px;">
+                ${generatePieChart(colors)}
+              </div>
+              <div class="block-handle">⠿</div>
+            </div>
+          </div>
+        ` : ''}
+        
         ${data.charts.includes('table') ? `
-          <div class="dash-block table-card" data-block="table" style="background: ${colors.bg}; border-color: ${colors.primary};">
-            <div class="chart-title" style="color: ${colors.primary};">Dados Detalhados</div>
+          <div class="dash-block table-card" data-block="table" style="background: ${colors.bg}; border-color: ${colors.primary}; font-family: ${fontFamily};">
+            <div class="chart-title" style="color: ${colors.primary}; font-family: ${fontFamily};">Dados Detalhados</div>
             ${generateTable(colors)}
             <div class="block-handle">⠿</div>
           </div>
@@ -2041,6 +2246,56 @@ function generateBarChart(colors) {
   return bars.map((height, i) => `
     <div class="chart-bar" style="height: ${height}%; background: ${colors.primary}; opacity: ${i === bars.length - 1 ? 1 : 0.6};"></div>
   `).join('');
+}
+
+function generateLineChart(colors) {
+  const points = Array.from({length: 10}, () => Math.random() * 100);
+  const max = Math.max(...points);
+  
+  return `
+    <svg width="100%" height="80" viewBox="0 0 200 80">
+      <polyline
+        fill="none"
+        stroke="${colors.primary}"
+        stroke-width="2"
+        points="${points.map((p, i) => `${i * 20},${80 - (p/max * 70)}`).join(' ')}"
+      />
+      ${points.map((p, i) => `
+        <circle cx="${i * 20}" cy="${80 - (p/max * 70)}" r="3" fill="${colors.primary}" />
+      `).join('')}
+    </svg>
+  `;
+}
+
+function generatePieChart(colors) {
+  const segments = [30, 25, 20, 15, 10];
+  const colorsList = [colors.primary, colors.secondary, colors.accent, '#4ade80', '#f59e0b'];
+  let currentAngle = 0;
+  
+  return `
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      ${segments.map((segment, i) => {
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + (segment / 100) * 360;
+        const x1 = 60 + 50 * Math.cos(startAngle * Math.PI / 180);
+        const y1 = 60 + 50 * Math.sin(startAngle * Math.PI / 180);
+        const x2 = 60 + 50 * Math.cos(endAngle * Math.PI / 180);
+        const y2 = 60 + 50 * Math.sin(endAngle * Math.PI / 180);
+        const largeArc = segment > 50 ? 1 : 0;
+        
+        currentAngle = endAngle;
+        
+        return `
+          <path
+            d="M 60 60 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z"
+            fill="${colorsList[i]}"
+            stroke="white"
+            stroke-width="2"
+          />
+        `;
+      }).join('')}
+    </svg>
+  `;
 }
 
 function generateTable(colors) {
@@ -2427,6 +2682,7 @@ function getDashboardCSS() {
 // INIT
 // ═══════════════════════════════════════
 buildSidebar();
+updateSuggestedMetrics();
 
 // Add styles for tags
 const tagStyles = document.createElement('style');
