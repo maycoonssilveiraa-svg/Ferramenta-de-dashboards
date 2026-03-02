@@ -1523,6 +1523,10 @@ function validateStep(step) {
         return false;
       }
       break;
+    case 6:
+      // Step 6 (Conexão) não é obrigatório ter dados para avançar
+      // Permite avançar mesmo sem dados para testes
+      break;
   }
   return true;
 }
@@ -1621,6 +1625,7 @@ function switchPQTab(tabName) {
 }
 
 function selectPQSource(source) {
+  console.log('selectPQSource chamado com:', source);
   pqState.source = source;
   document.querySelectorAll('.source-card').forEach(card => card.classList.remove('selected'));
   event.target.closest('.source-card').classList.add('selected');
@@ -1631,11 +1636,15 @@ function selectPQSource(source) {
 }
 
 function handlePQFileUpload(event, type) {
+  console.log('handlePQFileUpload chamado com:', type);
   const file = event.target.files[0];
   if (!file) return;
   
+  console.log('Arquivo selecionado:', file.name);
+  
   const reader = new FileReader();
   reader.onload = function(e) {
+    console.log('FileReader onload executado');
     if (type === 'excel') {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, {type: 'array'});
@@ -1647,6 +1656,7 @@ function handlePQFileUpload(event, type) {
     }
     
     pqState.columns = Object.keys(pqState.rawData[0] || {});
+    console.log('Dados processados:', pqState.rawData.length, 'linhas');
     showPQStatus('source-status', `✅ Dados carregados: ${pqState.rawData.length} linhas, ${pqState.columns.length} colunas`, 'ok');
     
     // Mostrar botão para abrir Power Query
@@ -1696,6 +1706,7 @@ async function loadPQSheets() {
 }
 
 function openPowerQuery() {
+  console.log('openPowerQuery chamado');
   // Avançar para a etapa 7 (Power Query Transformação)
   goToStep(7);
   // Atualizar preview dos dados
