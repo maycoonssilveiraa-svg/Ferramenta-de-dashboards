@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard Layout Creator</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Poppins:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Lato:wght@400;500;700&family=Raleway:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
@@ -908,6 +908,51 @@
     color: #3b82f6;
   }
 
+  /* Tags */
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    min-height: 50px;
+    cursor: text;
+  }
+  
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(224,30,44,0.2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+  }
+  
+  .tag-remove {
+    cursor: pointer;
+    opacity: 0.6;
+    font-size: 0.7rem;
+  }
+  
+  .tag-remove:hover { opacity: 1; }
+  
+  .tag-input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    flex: 1;
+    min-width: 120px;
+    padding: 0.25rem 0.25rem;
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     .app { grid-template-columns: 1fr; }
@@ -956,7 +1001,7 @@
     <!-- Step 1: Cliente -->
     <div class="step-panel active" id="step-1">
       <div class="step-header">
-        <div class="step-tag">Etapa 1 de 7</div>
+        <div class="step-tag">Etapa 1 de 8</div>
         <div class="step-title">Sobre o Cliente</div>
         <div class="step-subtitle">Vamos começar pelo básico — quem é o cliente para esse dashboard?</div>
       </div>
@@ -1017,13 +1062,13 @@
     <!-- Step 2: Objetivo -->
     <div class="step-panel" id="step-2">
       <div class="step-header">
-        <div class="step-tag">Etapa 2 de 7</div>
+        <div class="step-tag">Etapa 2 de 8</div>
         <div class="step-title">Objetivo do Dashboard</div>
         <div class="step-subtitle">Qual é a principal finalidade desse dashboard?</div>
       </div>
       <div class="form-group">
         <label>Tipo de dashboard</label>
-        <div class="options-grid">
+        <div class="options-grid" id="dashTypeOptions">
           <div class="option-card" data-value="operacional" onclick="selectOption(this,'dashType')">
             <div class="option-icon">⚙️</div>
             <div class="option-label">Operacional</div>
@@ -1048,7 +1093,7 @@
       </div>
       <div class="form-group">
         <label>Público-alvo principal</label>
-        <div class="options-grid">
+        <div class="options-grid" id="audienceOptions">
           <div class="option-card" data-value="diretoria" onclick="selectOption(this,'audience')">
             <div class="option-icon">👔</div>
             <div class="option-label">Diretoria / C-level</div>
@@ -1106,7 +1151,7 @@
     <!-- Step 4: Layout -->
     <div class="step-panel" id="step-4">
       <div class="step-header">
-        <div class="step-tag">Etapa 4 de 7</div>
+        <div class="step-tag">Etapa 4 de 8</div>
         <div class="step-title">Estrutura do Layout</div>
         <div class="step-subtitle">Como o conteúdo deve ser organizado visualmente?</div>
       </div>
@@ -1261,9 +1306,9 @@
           <div>Clique para fazer upload do logo</div>
           <input type="file" id="logoFile" accept="image/*" style="display:none;" onchange="handleLogoUpload(event)">
         </div>
-        <div id="logoPreview" style="display:none; margin-top: 1rem;">
+        <div id="logoPreview" style="display:none; margin-top: 1rem; align-items: center; gap: 1rem;">
           <img id="logoPreviewImg" style="max-height: 80px; border-radius: 8px;">
-          <button class="btn btn-secondary" style="margin-left: 1rem;" onclick="removeLogo()">Remover</button>
+          <button class="btn btn-secondary" onclick="removeLogo()">Remover</button>
         </div>
       </div>
 
@@ -1481,7 +1526,7 @@ const data = {
   palette: '',
   colors: {},
   logoDataUrl: null,
-  bgDataUrl: null
+  fontFamily: "'DM Sans', sans-serif"
 };
 
 const pqState = {
@@ -1516,6 +1561,17 @@ const PALETTES = {
   energy:    { primary: '#ef4444', secondary: '#fca5a5', accent: '#7c1d0a', bg: '#fff5f5' },
   sunset:    { primary: '#ec4899', secondary: '#f9a8d4', accent: '#831843', bg: '#fdf2f8' },
   mono:      { primary: '#333', secondary: '#888', accent: '#111', bg: '#f9f9f9' }
+};
+
+const SEGMENT_METRICS = {
+  financeiro: ['Receita Total', 'Lucro Líquido', 'Margem de Lucro', 'ROI', 'Fluxo de Caixa', 'Dívida Líquida'],
+  saude: ['Pacientes Atendidos', 'Taxa de Ocupação', 'Tempo Médio Espera', 'Satisfação Pacientes', 'Custo por Procedimento'],
+  varejo: ['Vendas Totais', 'Ticket Médio', 'Taxa Conversão', 'Estoque Atual', 'Clientes Novos', 'Retenção Clientes'],
+  logistica: ['Entregas Realizadas', 'Tempo Médio Entrega', 'Custo Logístico', 'Taxa Entrega Prazo', 'Nível Serviço'],
+  rh: ['Funcionários Ativos', 'Taxa Rotatividade', 'Custo por Funcionário', 'Satisfação Equipe', 'Treinamentos Realizados'],
+  marketing: ['Leads Gerados', 'Taxa Conversão', 'Custo por Lead', 'ROI Marketing', 'Engajamento Social'],
+  tecnologia: ['Usuários Ativos', 'Uptime Sistema', 'Bugs Resolvidos', 'Velocidade Carregamento', 'Adoção Features'],
+  educacao: ['Alunos Matriculados', 'Taxa Conclusão', 'Satisfação Alunos', 'Custo por Aluno', 'Professores Ativos']
 };
 
 // ═══════════════════════════════════════
@@ -1613,16 +1669,8 @@ function validateStep(step) {
 }
 
 // ═══════════════════════════════════════
-// STEP 4: LAYOUT
+// STEP 1: CLIENTE
 // ═══════════════════════════════════════
-function toggleOption(card, field) {
-  card.classList.toggle('selected');
-  
-  if (field === 'layout') {
-    data.layout = card.classList.contains('selected') ? card.dataset.value : '';
-  }
-}
-
 function selectOption(card, field) {
   const isLayout = field === 'layout';
   if (isLayout) {
@@ -1644,20 +1692,17 @@ function selectOption(card, field) {
   }
 }
 
+function toggleOption(card, field) {
+  card.classList.toggle('selected');
+  
+  if (field === 'layout') {
+    data.layout = card.classList.contains('selected') ? card.dataset.value : '';
+  }
+}
+
 // ═══════════════════════════════════════
 // STEP 3: METRICS
 // ═══════════════════════════════════════
-const SEGMENT_METRICS = {
-  financeiro: ['Receita Total', 'Lucro Líquido', 'Margem de Lucro', 'ROI', 'Fluxo de Caixa', 'Dívida Líquida'],
-  saude: ['Pacientes Atendidos', 'Taxa de Ocupação', 'Tempo Médio Espera', 'Satisfação Pacientes', 'Custo por Procedimento'],
-  varejo: ['Vendas Totais', 'Ticket Médio', 'Taxa Conversão', 'Estoque Atual', 'Clientes Novos', 'Retenção Clientes'],
-  logistica: ['Entregas Realizadas', 'Tempo Médio Entrega', 'Custo Logístico', 'Taxa Entrega Prazo', 'Nível Serviço'],
-  rh: ['Funcionários Ativos', 'Taxa Rotatividade', 'Custo por Funcionário', 'Satisfação Equipe', 'Treinamentos Realizados'],
-  marketing: ['Leads Gerados', 'Taxa Conversão', 'Custo por Lead', 'ROI Marketing', 'Engajamento Social'],
-  tecnologia: ['Usuários Ativos', 'Uptime Sistema', 'Bugs Resolvidos', 'Velocidade Carregamento', 'Adoção Features'],
-  educacao: ['Alunos Matriculados', 'Taxa Conclusão', 'Satisfação Alunos', 'Custo por Aluno', 'Professores Ativos']
-};
-
 function updateSuggestedMetrics() {
   const container = document.getElementById('suggestedMetrics');
   const segment = data.segment;
@@ -1885,24 +1930,6 @@ function openPowerQuery() {
   goToStep(7);
   // Atualizar preview dos dados
   updatePQPreview();
-}
-
-async function loadPQJSON() {
-  const url = document.getElementById('pq-json-url').value;
-  if (!url) {
-    showPQStatus('source-status', '❌ Insira a URL do JSON', 'err');
-    return;
-  }
-  
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    pqState.rawData = Array.isArray(data) ? data : [data];
-    pqState.columns = Object.keys(pqState.rawData[0] || {});
-    showPQStatus('source-status', `✅ JSON carregado: ${pqState.rawData.length} linhas`, 'ok');
-  } catch (error) {
-    showPQStatus('source-status', '❌ Erro ao carregar JSON: ' + error.message, 'err');
-  }
 }
 
 function addPQTransform(type) {
@@ -2620,7 +2647,7 @@ function exportDashboard() {
     <title>${data.clientName || 'Dashboard'} - Dashboard</title>
     <style>
         body { 
-            font-family: 'DM Sans', sans-serif; 
+            font-family: ${data.fontFamily || "'DM Sans', sans-serif"}; 
             margin: 0; 
             background: #0d0d14; 
             color: #f5f5f5; 
@@ -2683,55 +2710,6 @@ function getDashboardCSS() {
 // ═══════════════════════════════════════
 buildSidebar();
 updateSuggestedMetrics();
-
-// Add styles for tags
-const tagStyles = document.createElement('style');
-tagStyles.textContent = `
-  .tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    background: var(--surface2);
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    min-height: 50px;
-    cursor: text;
-  }
-  
-  .tag {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    background: rgba(224,30,44,0.2);
-    border: 1px solid var(--accent);
-    color: var(--text);
-    padding: 0.25rem 0.6rem;
-    border-radius: 999px;
-    font-size: 0.8rem;
-  }
-  
-  .tag-remove {
-    cursor: pointer;
-    opacity: 0.6;
-    font-size: 0.7rem;
-  }
-  
-  .tag-remove:hover { opacity: 1; }
-  
-  .tag-input {
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.9rem;
-    flex: 1;
-    min-width: 120px;
-    padding: 0.25rem 0.25rem;
-  }
-`;
-document.head.appendChild(tagStyles);
 </script>
 </body>
 </html>
