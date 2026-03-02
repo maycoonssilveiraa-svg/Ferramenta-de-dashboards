@@ -1282,19 +1282,31 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
           <div>
             <label style="font-size: 0.8rem;">Cor Primária</label>
-            <input type="color" id="colorPrimary" value="#2563eb" onchange="updateCustomColors()" style="width: 100%; height: 40px; border-radius: 8px; cursor: pointer;">
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="color" id="colorPrimary" value="#2563eb" onchange="updateCustomColors()" style="width: 60px; height: 40px; border-radius: 8px; cursor: pointer;">
+              <input type="text" id="colorPrimaryHex" value="#2563eb" placeholder="#2563eb" onchange="updateColorFromHex('primary')" style="flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text);">
+            </div>
           </div>
           <div>
             <label style="font-size: 0.8rem;">Cor Secundária</label>
-            <input type="color" id="colorSecondary" value="#38bdf8" onchange="updateCustomColors()" style="width: 100%; height: 40px; border-radius: 8px; cursor: pointer;">
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="color" id="colorSecondary" value="#38bdf8" onchange="updateCustomColors()" style="width: 60px; height: 40px; border-radius: 8px; cursor: pointer;">
+              <input type="text" id="colorSecondaryHex" value="#38bdf8" placeholder="#38bdf8" onchange="updateColorFromHex('secondary')" style="flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text);">
+            </div>
           </div>
           <div>
             <label style="font-size: 0.8rem;">Cor de Destaque</label>
-            <input type="color" id="colorAccent" value="#f59e0b" onchange="updateCustomColors()" style="width: 100%; height: 40px; border-radius: 8px; cursor: pointer;">
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="color" id="colorAccent" value="#f59e0b" onchange="updateCustomColors()" style="width: 60px; height: 40px; border-radius: 8px; cursor: pointer;">
+              <input type="text" id="colorAccentHex" value="#f59e0b" placeholder="#f59e0b" onchange="updateColorFromHex('accent')" style="flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text);">
+            </div>
           </div>
           <div>
             <label style="font-size: 0.8rem;">Cor de Fundo</label>
-            <input type="color" id="colorBg" value="#f8fafc" onchange="updateCustomColors()" style="width: 100%; height: 40px; border-radius: 8px; cursor: pointer;">
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="color" id="colorBg" value="#f8fafc" onchange="updateCustomColors()" style="width: 60px; height: 40px; border-radius: 8px; cursor: pointer;">
+              <input type="text" id="colorBgHex" value="#f8fafc" placeholder="#f8fafc" onchange="updateColorFromHex('bg')" style="flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text);">
+            </div>
           </div>
         </div>
       </div>
@@ -1504,6 +1516,8 @@
         <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
         <button class="btn btn-primary" id="btnEditMode" onclick="toggleEditMode(true)">✏️ Editar Dashboard</button>
         <button class="btn btn-generate" onclick="exportDashboard()">📥 Exportar HTML</button>
+        <button class="btn btn-generate" onclick="exportAsImage('png')">🖼️ Exportar PNG</button>
+        <button class="btn btn-generate" onclick="exportAsImage('jpeg')">📸 Exportar JPEG</button>
       </div>
     </div>
 
@@ -1564,14 +1578,38 @@ const PALETTES = {
 };
 
 const SEGMENT_METRICS = {
-  financeiro: ['Receita Total', 'Lucro Líquido', 'Margem de Lucro', 'ROI', 'Fluxo de Caixa', 'Dívida Líquida'],
-  saude: ['Pacientes Atendidos', 'Taxa de Ocupação', 'Tempo Médio Espera', 'Satisfação Pacientes', 'Custo por Procedimento'],
-  varejo: ['Vendas Totais', 'Ticket Médio', 'Taxa Conversão', 'Estoque Atual', 'Clientes Novos', 'Retenção Clientes'],
-  logistica: ['Entregas Realizadas', 'Tempo Médio Entrega', 'Custo Logístico', 'Taxa Entrega Prazo', 'Nível Serviço'],
-  rh: ['Funcionários Ativos', 'Taxa Rotatividade', 'Custo por Funcionário', 'Satisfação Equipe', 'Treinamentos Realizados'],
-  marketing: ['Leads Gerados', 'Taxa Conversão', 'Custo por Lead', 'ROI Marketing', 'Engajamento Social'],
-  tecnologia: ['Usuários Ativos', 'Uptime Sistema', 'Bugs Resolvidos', 'Velocidade Carregamento', 'Adoção Features'],
-  educacao: ['Alunos Matriculados', 'Taxa Conclusão', 'Satisfação Alunos', 'Custo por Aluno', 'Professores Ativos']
+  financeiro: [
+    'Receita Total', 'Lucro Líquido', 'Margem de Lucro', 'ROI', 'Fluxo de Caixa', 'Dívida Líquida',
+    'EBITDA', 'Custo Operacional', 'Receita Recorrente', 'Taxa de Juros', 'Inadimplência', 'Capital de Giro'
+  ],
+  saude: [
+    'Pacientes Atendidos', 'Taxa de Ocupação', 'Tempo Médio Espera', 'Satisfação Pacientes', 'Custo por Procedimento',
+    'Taxa de Mortalidade', 'Readmissões', 'Taxa de Infecção', 'Médicos por Paciente', 'Glosas', 'Tempo Internação'
+  ],
+  varejo: [
+    'Vendas Totais', 'Ticket Médio', 'Taxa Conversão', 'Estoque Atual', 'Clientes Novos', 'Retenção Clientes',
+    'Margem Bruta', 'Giro de Estoque', 'Quebra de Estoque', 'Custo de Aquisição', 'Lifetime Value', 'Churn Rate'
+  ],
+  logistica: [
+    'Entregas Realizadas', 'Tempo Médio Entrega', 'Custo Logístico', 'Taxa Entrega Prazo', 'Nível Serviço',
+    'Capacidade Armazenamento', 'Rotatividade Estoque', 'Taxa Devolução', 'Eficiência Rota', 'Custo por Km', 'Índice Sucesso'
+  ],
+  rh: [
+    'Funcionários Ativos', 'Taxa Rotatividade', 'Custo por Funcionário', 'Satisfação Equipe', 'Treinamentos Realizados',
+    'Absenteísmo', 'Tempo Médio Casa', 'Diversidade', 'Promoções Internas', 'Custo Turnover', 'Engajamento'
+  ],
+  marketing: [
+    'Leads Gerados', 'Taxa Conversão', 'Custo por Lead', 'ROI Marketing', 'Engajamento Social',
+    'Alcance Digital', 'Taxa Abertura Email', 'CTR', 'Custo por Aquisição', 'Taxa Retenção', 'Brand Awareness'
+  ],
+  tecnologia: [
+    'Usuários Ativos', 'Uptime Sistema', 'Bugs Resolvidos', 'Velocidade Carregamento', 'Adoção Features',
+    'Churn Rate', 'MAU/DAU', 'Tempo Resposta', 'Taxa Erro', 'Satisfação Usuário', 'Net Promoter Score'
+  ],
+  educacao: [
+    'Alunos Matriculados', 'Taxa Conclusão', 'Satisfação Alunos', 'Custo por Aluno', 'Professores Ativos',
+    'Taxa Evasão', 'Nota Média', 'Aproveitamento', 'Taxa Aprovação', 'Alunos por Turma', 'Horas Aula'
+  ]
 };
 
 // ═══════════════════════════════════════
@@ -1620,6 +1658,11 @@ function goToStep(stepNum) {
 
   currentStep = stepNum;
   updateProgress();
+
+  // Special handling for step 3 - atualizar sugestões de KPIs
+  if (stepNum === 3) {
+    updateSuggestedMetrics();
+  }
 
   // Special handling for step 8
   if (stepNum === 8) {
@@ -1719,24 +1762,47 @@ function updateSuggestedMetrics() {
   const container = document.getElementById('suggestedMetrics');
   const segment = data.segment;
   
+  console.log('Atualizando sugestões de KPIs para segmento:', segment);
+  
   if (!segment || !SEGMENT_METRICS[segment]) {
     container.innerHTML = '<div style="color: var(--muted); text-align: center; padding: 2rem;">Selecione um segmento na etapa anterior para ver sugestões</div>';
     return;
   }
   
   const metrics = SEGMENT_METRICS[segment];
+  console.log('Métricas encontradas para', segment, ':', metrics);
+  
   container.innerHTML = metrics.map(metric => `
     <div class="option-card" onclick="addSuggestedMetric('${metric}')" style="cursor: pointer;">
       <div class="option-icon">📊</div>
       <div class="option-label">${metric}</div>
     </div>
   `).join('');
+  
+  console.log('Sugestões de KPIs renderizadas com sucesso');
 }
 
 function addSuggestedMetric(metric) {
+  console.log('Adicionando métrica sugerida:', metric);
+  
   if (!data.metrics.includes(metric)) {
     data.metrics.push(metric);
     renderMetricsTags();
+    
+    // Feedback visual
+    console.log('Métrica adicionada com sucesso:', metric);
+    
+    // Opcional: mostrar feedback visual
+    const cards = document.querySelectorAll('#suggestedMetrics .option-card');
+    cards.forEach(card => {
+      if (card.textContent.includes(metric)) {
+        card.style.opacity = '0.5';
+        card.style.cursor = 'not-allowed';
+        card.onclick = null;
+      }
+    });
+  } else {
+    console.log('Métrica já existe:', metric);
   }
 }
 
@@ -1803,6 +1869,12 @@ function selectPalette(card) {
   document.getElementById('colorSecondary').value = data.colors.secondary;
   document.getElementById('colorAccent').value = data.colors.accent;
   document.getElementById('colorBg').value = data.colors.bg;
+  
+  // Atualizar campos hex
+  document.getElementById('colorPrimaryHex').value = data.colors.primary;
+  document.getElementById('colorSecondaryHex').value = data.colors.secondary;
+  document.getElementById('colorAccentHex').value = data.colors.accent;
+  document.getElementById('colorBgHex').value = data.colors.bg;
 }
 
 function updateCustomColors() {
@@ -1814,8 +1886,30 @@ function updateCustomColors() {
     bg: document.getElementById('colorBg').value
   };
   
+  // Atualizar campos hex
+  document.getElementById('colorPrimaryHex').value = data.colors.primary;
+  document.getElementById('colorSecondaryHex').value = data.colors.secondary;
+  document.getElementById('colorAccentHex').value = data.colors.accent;
+  document.getElementById('colorBgHex').value = data.colors.bg;
+  
   // Desmarcar paletas pré-definidas
   document.querySelectorAll('.palette-option').forEach(c => c.classList.remove('selected'));
+}
+
+function updateColorFromHex(colorType) {
+  const hexValue = document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}Hex`).value;
+  
+  // Validar código hex
+  if (!/^#[0-9A-F]{6}$/i.test(hexValue)) {
+    alert('Código hex inválido. Use formato #RRGGBB');
+    return;
+  }
+  
+  // Atualizar color picker
+  document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}`).value = hexValue;
+  
+  // Atualizar cores
+  updateCustomColors();
 }
 
 function handleLogoUpload(event) {
@@ -2687,6 +2781,48 @@ function exportDashboard() {
   link.href = url;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function exportAsImage(format) {
+  const preview = document.getElementById('dashboardPreview');
+  
+  // Usar html2canvas library (precisa ser incluída)
+  if (typeof html2canvas === 'undefined') {
+    // Carregar html2canvas dinamicamente
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.onload = function() {
+      performImageExport(preview, format);
+    };
+    document.head.appendChild(script);
+  } else {
+    performImageExport(preview, format);
+  }
+}
+
+function performImageExport(element, format) {
+  // Opções para captura
+  const options = {
+    backgroundColor: '#0d0d14',
+    scale: 2, // Maior qualidade
+    logging: false,
+    useCORS: true
+  };
+  
+  html2canvas(element, options).then(canvas => {
+    // Converter para blob e download
+    canvas.toBlob(function(blob) {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = (data.clientName || 'dashboard').replace(/\s+/g, '_') + '_dashboard.' + format;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+    }, `image/${format}`, 0.95);
+  }).catch(function(error) {
+    console.error('Erro ao exportar imagem:', error);
+    alert('Erro ao exportar imagem. Tente novamente.');
+  });
 }
 
 function getDashboardCSS() {
