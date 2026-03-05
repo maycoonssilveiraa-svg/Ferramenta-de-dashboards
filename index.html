@@ -962,6 +962,7 @@
     .dash-sidebar { display: none; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -1137,9 +1138,20 @@
       </div>
       <div class="form-group">
         <label>Adicione métricas personalizadas (pressione Enter para adicionar)</label>
-        <div class="tags-container" onclick="document.getElementById('metricsInput').focus()">
-          <div id="metricsTags"></div>
-          <input class="tag-input" id="metricsInput" placeholder="ex: Receita Total, Ticket Médio..." onkeydown="addTag(event,'metrics')">
+        <div class="kpi-suggestions-wrap">
+          <div class="tags-container" id="metricsTagsContainer" onclick="document.getElementById('metricsInput').focus()">
+            <div id="metricsTags"></div>
+            <input class="tag-input" id="metricsInput"
+              placeholder="ex: Receita Total, Ticket Médio..."
+              onkeydown="addTag(event,'metrics')"
+              oninput="filterKPISuggestions()"
+              onfocus="showKPISuggestions()"
+              onblur="hideKPISuggestionsDelayed()">
+          </div>
+          <div class="kpi-quick-suggestions" id="kpiQuickSuggestions"></div>
+        </div>
+        <div style="margin-top:0.5rem; font-size:0.75rem; color:var(--muted);">
+          💡 Digite para filtrar sugestões ou clique em uma abaixo para adicionar rapidamente.
         </div>
       </div>
       <div class="nav-buttons">
@@ -1279,33 +1291,100 @@
 
       <div class="form-group">
         <label>Color Picker Personalizado</label>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
           <div>
-            <label style="font-size: 0.8rem;">Cor Primária</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="color" id="colorPrimary" value="#2563eb" onchange="updateCustomColors()" style="width: 60px; height: 40px; border-radius: 8px; cursor: pointer;">
-              <input type="text" id="colorPrimaryHex" value="#2563eb" placeholder="#2563eb" onchange="updateColorFromHex('primary')" style="flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text);">
+            <label style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Cor Primária</label>
+            <div style="display: grid; grid-template-columns: 60px 1fr; gap: 0.5rem; align-items: center;">
+              <input type="color" id="colorPrimary" value="#2563eb" onchange="updateCustomColors()" style="width: 60px; height: 60px; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);">
+              <div>
+                <input type="text" id="colorPrimaryHex" value="#2563eb" placeholder="#2563eb" onchange="updateColorFromHex('primary')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text); font-size: 0.9rem;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">R</label>
+                    <input type="number" id="colorPrimaryR" value="37" min="0" max="255" onchange="updateColorFromRGB('primary')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">G</label>
+                    <input type="number" id="colorPrimaryG" value="99" min="0" max="255" onchange="updateColorFromRGB('primary')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">B</label>
+                    <input type="number" id="colorPrimaryB" value="235" min="0" max="255" onchange="updateColorFromRGB('primary')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+          
           <div>
-            <label style="font-size: 0.8rem;">Cor Secundária</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="color" id="colorSecondary" value="#38bdf8" onchange="updateCustomColors()" style="width: 60px; height: 40px; border-radius: 8px; cursor: pointer;">
-              <input type="text" id="colorSecondaryHex" value="#38bdf8" placeholder="#38bdf8" onchange="updateColorFromHex('secondary')" style="flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text);">
+            <label style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Cor Secundária</label>
+            <div style="display: grid; grid-template-columns: 60px 1fr; gap: 0.5rem; align-items: center;">
+              <input type="color" id="colorSecondary" value="#38bdf8" onchange="updateCustomColors()" style="width: 60px; height: 60px; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);">
+              <div>
+                <input type="text" id="colorSecondaryHex" value="#38bdf8" placeholder="#38bdf8" onchange="updateColorFromHex('secondary')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text); font-size: 0.9rem;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">R</label>
+                    <input type="number" id="colorSecondaryR" value="56" min="0" max="255" onchange="updateColorFromRGB('secondary')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">G</label>
+                    <input type="number" id="colorSecondaryG" value="189" min="0" max="255" onchange="updateColorFromRGB('secondary')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">B</label>
+                    <input type="number" id="colorSecondaryB" value="248" min="0" max="255" onchange="updateColorFromRGB('secondary')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+          
           <div>
-            <label style="font-size: 0.8rem;">Cor de Destaque</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="color" id="colorAccent" value="#f59e0b" onchange="updateCustomColors()" style="width: 60px; height: 40px; border-radius: 8px; cursor: pointer;">
-              <input type="text" id="colorAccentHex" value="#f59e0b" placeholder="#f59e0b" onchange="updateColorFromHex('accent')" style="flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text);">
+            <label style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Cor de Destaque</label>
+            <div style="display: grid; grid-template-columns: 60px 1fr; gap: 0.5rem; align-items: center;">
+              <input type="color" id="colorAccent" value="#f59e0b" onchange="updateCustomColors()" style="width: 60px; height: 60px; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);">
+              <div>
+                <input type="text" id="colorAccentHex" value="#f59e0b" placeholder="#f59e0b" onchange="updateColorFromHex('accent')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text); font-size: 0.9rem;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">R</label>
+                    <input type="number" id="colorAccentR" value="245" min="0" max="255" onchange="updateColorFromRGB('accent')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">G</label>
+                    <input type="number" id="colorAccentG" value="158" min="0" max="255" onchange="updateColorFromRGB('accent')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">B</label>
+                    <input type="number" id="colorAccentB" value="11" min="0" max="255" onchange="updateColorFromRGB('accent')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
+          
           <div>
-            <label style="font-size: 0.8rem;">Cor de Fundo</label>
-            <div style="display: flex; gap: 0.5rem;">
-              <input type="color" id="colorBg" value="#f8fafc" onchange="updateCustomColors()" style="width: 60px; height: 40px; border-radius: 8px; cursor: pointer;">
-              <input type="text" id="colorBgHex" value="#f8fafc" placeholder="#f8fafc" onchange="updateColorFromHex('bg')" style="flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text);">
+            <label style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Cor de Fundo</label>
+            <div style="display: grid; grid-template-columns: 60px 1fr; gap: 0.5rem; align-items: center;">
+              <input type="color" id="colorBg" value="#f8fafc" onchange="updateCustomColors()" style="width: 60px; height: 60px; border-radius: 8px; cursor: pointer; border: 2px solid var(--border);">
+              <div>
+                <input type="text" id="colorBgHex" value="#f8fafc" placeholder="#f8fafc" onchange="updateColorFromHex('bg')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem; color: var(--text); font-size: 0.9rem;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.5rem;">
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">R</label>
+                    <input type="number" id="colorBgR" value="248" min="0" max="255" onchange="updateColorFromRGB('bg')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">G</label>
+                    <input type="number" id="colorBgG" value="250" min="0" max="255" onchange="updateColorFromRGB('bg')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                  <div style="text-align: center;">
+                    <label style="font-size: 0.7rem; color: var(--muted);">B</label>
+                    <input type="number" id="colorBgB" value="252" min="0" max="255" onchange="updateColorFromRGB('bg')" style="width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem; color: var(--text); font-size: 0.8rem;">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1515,9 +1594,27 @@
       <div class="nav-buttons">
         <button class="btn btn-secondary" onclick="prevStep()">← Voltar</button>
         <button class="btn btn-primary" id="btnEditMode" onclick="toggleEditMode(true)">✏️ Editar Dashboard</button>
-        <button class="btn btn-generate" onclick="exportDashboard()">📥 Exportar HTML</button>
-        <button class="btn btn-generate" onclick="exportAsImage('png')">🖼️ Exportar PNG</button>
-        <button class="btn btn-generate" onclick="exportAsImage('jpeg')">📸 Exportar JPEG</button>
+      </div>
+
+      <div class="export-section">
+        <div class="export-section-title">📥 Exportar Dashboard</div>
+        <div style="font-size:0.82rem; color:var(--muted); margin-bottom:1rem;">
+          Escolha o formato de exportação do seu dashboard gerado.
+        </div>
+        <div class="export-buttons">
+          <button class="btn-export html" onclick="exportDashboard()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Exportar como HTML
+          </button>
+          <button class="btn-export png" onclick="exportAsImage('png')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Exportar como PNG
+          </button>
+          <button class="btn-export jpeg" onclick="exportAsImage('jpeg')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Exportar como JPEG
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1875,6 +1972,12 @@ function selectPalette(card) {
   document.getElementById('colorSecondaryHex').value = data.colors.secondary;
   document.getElementById('colorAccentHex').value = data.colors.accent;
   document.getElementById('colorBgHex').value = data.colors.bg;
+  
+  // Atualizar campos RGB
+  updateRGBFields('primary', data.colors.primary);
+  updateRGBFields('secondary', data.colors.secondary);
+  updateRGBFields('accent', data.colors.accent);
+  updateRGBFields('bg', data.colors.bg);
 }
 
 function updateCustomColors() {
@@ -1891,6 +1994,12 @@ function updateCustomColors() {
   document.getElementById('colorSecondaryHex').value = data.colors.secondary;
   document.getElementById('colorAccentHex').value = data.colors.accent;
   document.getElementById('colorBgHex').value = data.colors.bg;
+  
+  // Atualizar campos RGB
+  updateRGBFields('primary', data.colors.primary);
+  updateRGBFields('secondary', data.colors.secondary);
+  updateRGBFields('accent', data.colors.accent);
+  updateRGBFields('bg', data.colors.bg);
   
   // Desmarcar paletas pré-definidas
   document.querySelectorAll('.palette-option').forEach(c => c.classList.remove('selected'));
@@ -1910,6 +2019,43 @@ function updateColorFromHex(colorType) {
   
   // Atualizar cores
   updateCustomColors();
+}
+
+function updateColorFromRGB(colorType) {
+  const r = parseInt(document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}R`).value) || 0;
+  const g = parseInt(document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}G`).value) || 0;
+  const b = parseInt(document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}B`).value) || 0;
+  
+  // Validar valores RGB
+  if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+    alert('Valores RGB devem estar entre 0 e 255');
+    return;
+  }
+  
+  // Converter para hex
+  const hex = '#' + [r, g, b].map(x => {
+    const hex = x.toString(16);
+    return hex.length === 1 ? '0' + hex : hex;
+  }).join('');
+  
+  // Atualizar color picker e campo hex
+  document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}`).value = hex;
+  document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}Hex`).value = hex;
+  
+  // Atualizar cores
+  updateCustomColors();
+}
+
+function updateRGBFields(colorType, hexColor) {
+  // Converter hex para RGB
+  const r = parseInt(hexColor.substr(1, 2), 16);
+  const g = parseInt(hexColor.substr(3, 2), 16);
+  const b = parseInt(hexColor.substr(5, 2), 16);
+  
+  // Atualizar campos RGB
+  document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}R`).value = r;
+  document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}G`).value = g;
+  document.getElementById(`color${colorType.charAt(0).toUpperCase() + colorType.slice(1)}B`).value = b;
 }
 
 function handleLogoUpload(event) {
@@ -2765,7 +2911,133 @@ function exportDashboard() {
             min-height: 100vh; 
         }
         ${getDashboardCSS()}
-    </style>
+    
+  /* KPI Quick Suggestions */
+  .kpi-suggestions-wrap {
+    position: relative;
+  }
+
+  .kpi-quick-suggestions {
+    display: none;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+
+  .kpi-quick-suggestions.visible {
+    display: flex;
+  }
+
+  .kpi-suggestion-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .kpi-suggestion-chip:hover {
+    border-color: var(--accent);
+    background: rgba(224,30,44,0.12);
+    color: var(--accent2);
+    transform: translateY(-1px);
+  }
+
+  .kpi-suggestion-chip.already-added {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* tags-container rounded top only when suggestions are visible */
+  .kpi-suggestions-wrap .tags-container {
+    border-radius: 10px;
+    transition: border-radius 0.15s;
+  }
+
+  .kpi-suggestions-wrap .tags-container.open-bottom {
+    border-radius: 10px 10px 0 0;
+  }
+
+  /* Export section */
+  .export-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .export-section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .export-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .btn-export {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.4rem;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-export:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+
+  .btn-export.html {
+    border-color: #3b82f6;
+    color: #3b82f6;
+  }
+  .btn-export.html:hover { background: rgba(59,130,246,0.12); }
+
+  .btn-export.png {
+    border-color: var(--success);
+    color: var(--success);
+  }
+  .btn-export.png:hover { background: rgba(74,222,128,0.12); }
+
+  .btn-export.jpeg {
+    border-color: #f59e0b;
+    color: #f59e0b;
+  }
+  .btn-export.jpeg:hover { background: rgba(245,158,11,0.12); }
+
+</style>
 </head>
 <body>
     <div class="dashboard-preview">
@@ -2785,45 +3057,113 @@ function exportDashboard() {
 
 function exportAsImage(format) {
   const preview = document.getElementById('dashboardPreview');
-  
-  // Usar html2canvas library (precisa ser incluída)
-  if (typeof html2canvas === 'undefined') {
-    // Carregar html2canvas dinamicamente
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    script.onload = function() {
-      performImageExport(preview, format);
-    };
-    document.head.appendChild(script);
-  } else {
-    performImageExport(preview, format);
+  if (!preview || preview.innerHTML.trim() === '') {
+    alert('⚠️ Gere o dashboard primeiro antes de exportar!');
+    return;
   }
-}
 
-function performImageExport(element, format) {
-  // Opções para captura
-  const options = {
+  const loadingMsg = document.createElement('div');
+  loadingMsg.id = 'export-loading-overlay';
+  loadingMsg.style.cssText = [
+    'position:fixed', 'top:0', 'left:0', 'width:100%', 'height:100%',
+    'background:rgba(0,0,0,0.7)', 'z-index:99999',
+    'display:flex', 'align-items:center', 'justify-content:center'
+  ].join(';');
+  loadingMsg.innerHTML = `
+    <div style="background:#111;border:1px solid #2d2d2d;border-radius:14px;
+      padding:2.5rem 3rem;text-align:center;color:#f5f5f5;font-family:sans-serif;
+      box-shadow:0 8px 40px rgba(0,0,0,0.8);">
+      <div style="font-size:2rem;margin-bottom:0.75rem">📸</div>
+      <div style="font-size:1.1rem;font-weight:700;margin-bottom:0.4rem">Capturando dashboard...</div>
+      <div style="color:#888;font-size:0.85rem">Gerando imagem em ${format.toUpperCase()}</div>
+    </div>`;
+  document.body.appendChild(loadingMsg);
+
+  // Temporarily expose full content for capture
+  const prevOverflow = preview.style.overflow;
+  const prevBorderRadius = preview.style.borderRadius;
+  preview.style.overflow = 'visible';
+  preview.style.borderRadius = '0';
+
+  const captureOptions = {
     backgroundColor: '#0d0d14',
-    scale: 2, // Maior qualidade
+    scale: 2,
     logging: false,
-    useCORS: true
+    useCORS: true,
+    allowTaint: true,
+    scrollX: 0,
+    scrollY: 0,
+    width: preview.scrollWidth,
+    height: preview.scrollHeight
   };
-  
-  html2canvas(element, options).then(canvas => {
-    // Converter para blob e download
+
+  const restorePreview = () => {
+    preview.style.overflow = prevOverflow;
+    preview.style.borderRadius = prevBorderRadius;
+    const overlay = document.getElementById('export-loading-overlay');
+    if (overlay) document.body.removeChild(overlay);
+  };
+
+  html2canvas(preview, captureOptions).then(canvas => {
+    restorePreview();
+
+    const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+    const quality  = format === 'jpeg' ? 0.92 : 1.0;
+    const fileName = (data.clientName || 'dashboard').replace(/\s+/g, '_') + '_dashboard.' + format;
+
     canvas.toBlob(function(blob) {
+      if (!blob) {
+        showExportError('Falha ao gerar o arquivo de imagem.');
+        return;
+      }
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.download = (data.clientName || 'dashboard').replace(/\s+/g, '_') + '_dashboard.' + format;
+      link.download = fileName;
       link.href = url;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    }, `image/${format}`, 0.95);
-  }).catch(function(error) {
-    console.error('Erro ao exportar imagem:', error);
-    alert('Erro ao exportar imagem. Tente novamente.');
+      showExportSuccess(format);
+    }, mimeType, quality);
+
+  }).catch(err => {
+    restorePreview();
+    console.error('Erro na exportação de imagem:', err);
+    showExportError('Erro ao capturar o dashboard. Tente novamente.');
   });
 }
+
+function showExportSuccess(format) {
+  const msg = document.createElement('div');
+  msg.style.cssText = [
+    'position:fixed', 'bottom:30px', 'right:30px',
+    'background:#4ade80', 'color:#000',
+    'padding:1rem 1.75rem', 'border-radius:10px',
+    'z-index:99999', 'font-weight:700', 'font-size:0.95rem',
+    'box-shadow:0 4px 24px rgba(74,222,128,0.5)',
+    'font-family:sans-serif', 'animation:none'
+  ].join(';');
+  msg.textContent = '✅ Dashboard exportado como ' + format.toUpperCase() + '!';
+  document.body.appendChild(msg);
+  setTimeout(() => { if (msg.parentNode) document.body.removeChild(msg); }, 3500);
+}
+
+function showExportError(message) {
+  const msg = document.createElement('div');
+  msg.style.cssText = [
+    'position:fixed', 'bottom:30px', 'right:30px',
+    'background:#e01e2c', 'color:white',
+    'padding:1rem 1.75rem', 'border-radius:10px',
+    'z-index:99999', 'font-weight:700', 'font-size:0.95rem',
+    'box-shadow:0 4px 24px rgba(224,30,44,0.5)',
+    'font-family:sans-serif'
+  ].join(';');
+  msg.textContent = '❌ ' + message;
+  document.body.appendChild(msg);
+  setTimeout(() => { if (msg.parentNode) document.body.removeChild(msg); }, 4000);
+}
+
 
 function getDashboardCSS() {
   return `
@@ -2861,6 +3201,90 @@ function getDashboardCSS() {
 // ═══════════════════════════════════════
 buildSidebar();
 updateSuggestedMetrics();
+
+// ═══════════════════════════════════════
+// KPI QUICK SUGGESTIONS
+// ═══════════════════════════════════════
+const UNIVERSAL_KPIS = [
+  'Receita Total', 'Lucro Líquido', 'Margem de Lucro', 'ROI', 'Crescimento %',
+  'Ticket Médio', 'Taxa de Conversão', 'Clientes Ativos', 'Churn Rate',
+  'Net Promoter Score', 'Custo Operacional', 'Metas Atingidas'
+];
+
+let kpiSuggestionsTimeout = null;
+
+function getAllKPISuggestions() {
+  const segment = data.segment;
+  const segmentMetrics = (segment && SEGMENT_METRICS[segment]) ? SEGMENT_METRICS[segment] : [];
+  // Merge segment-specific + universal, deduplicated
+  const all = [...segmentMetrics];
+  UNIVERSAL_KPIS.forEach(k => { if (!all.includes(k)) all.push(k); });
+  return all;
+}
+
+function showKPISuggestions() {
+  filterKPISuggestions();
+}
+
+function hideKPISuggestionsDelayed() {
+  kpiSuggestionsTimeout = setTimeout(() => {
+    const panel = document.getElementById('kpiQuickSuggestions');
+    const container = document.getElementById('metricsTagsContainer');
+    if (panel) { panel.classList.remove('visible'); }
+    if (container) { container.classList.remove('open-bottom'); }
+  }, 200);
+}
+
+function filterKPISuggestions() {
+  if (kpiSuggestionsTimeout) clearTimeout(kpiSuggestionsTimeout);
+
+  const input = document.getElementById('metricsInput');
+  const panel = document.getElementById('kpiQuickSuggestions');
+  const container = document.getElementById('metricsTagsContainer');
+  if (!input || !panel) return;
+
+  const query = input.value.trim().toLowerCase();
+  const all = getAllKPISuggestions();
+
+  // Filter: show matching ones first, then show up to 20 total
+  let filtered;
+  if (query.length === 0) {
+    filtered = all.slice(0, 20);
+  } else {
+    const matching = all.filter(k => k.toLowerCase().includes(query));
+    filtered = matching.slice(0, 20);
+  }
+
+  if (filtered.length === 0) {
+    panel.classList.remove('visible');
+    container.classList.remove('open-bottom');
+    return;
+  }
+
+  panel.innerHTML = filtered.map(kpi => {
+    const alreadyAdded = data.metrics.includes(kpi);
+    return `<span class="kpi-suggestion-chip ${alreadyAdded ? 'already-added' : ''}"
+      onclick="addKPISuggestionChip('${kpi.replace(/'/g, "\'")}')" title="${kpi}">
+      ${alreadyAdded ? '✓' : '+'} ${kpi}
+    </span>`;
+  }).join('');
+
+  panel.classList.add('visible');
+  container.classList.add('open-bottom');
+}
+
+function addKPISuggestionChip(kpi) {
+  if (kpiSuggestionsTimeout) clearTimeout(kpiSuggestionsTimeout);
+  if (!data.metrics.includes(kpi)) {
+    data.metrics.push(kpi);
+    renderMetricsTags();
+  }
+  // Refresh suggestions to mark as added
+  const input = document.getElementById('metricsInput');
+  if (input) input.focus();
+  filterKPISuggestions();
+}
+
 </script>
 </body>
 </html>
